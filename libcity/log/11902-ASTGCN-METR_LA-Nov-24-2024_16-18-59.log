@@ -1,0 +1,246 @@
+2024-11-24 16:18:59,181 - INFO - Log directory: ./libcity/log
+2024-11-24 16:18:59,182 - INFO - Begin pipeline, task=traffic_state_pred, model_name=ASTGCN, dataset_name=METR_LA, exp_id=11902
+2024-11-24 16:18:59,182 - INFO - {'task': 'traffic_state_pred', 'model': 'ASTGCN', 'dataset': 'METR_LA', 'saved_model': True, 'train': True, 'seed': 0, 'dataset_class': 'ASTGCNDataset', 'executor': 'TrafficStateExecutor', 'evaluator': 'TrafficStateEvaluator', 'nb_block': 2, 'K': 3, 'nb_chev_filter': 64, 'nb_time_filter': 64, 'scaler': 'standard', 'load_external': False, 'normal_external': False, 'ext_scaler': 'none', 'add_time_in_day': False, 'add_day_in_week': False, 'train_rate': 0.6, 'eval_rate': 0.2, 'max_epoch': 100, 'learner': 'adam', 'learning_rate': 0.0001, 'lr_decay': False, 'clip_grad_norm': False, 'use_early_stop': False, 'batch_size': 64, 'cache_dataset': True, 'num_workers': 0, 'pad_with_last_sample': True, 'input_window': 12, 'output_window': 12, 'len_closeness': 2, 'len_period': 1, 'len_trend': 2, 'interval_period': 1, 'interval_trend': 7, 'gpu': True, 'gpu_id': 0, 'train_loss': 'none', 'epoch': 0, 'weight_decay': 0, 'lr_epsilon': 1e-08, 'lr_beta1': 0.9, 'lr_beta2': 0.999, 'lr_alpha': 0.99, 'lr_momentum': 0, 'lr_scheduler': 'multisteplr', 'lr_decay_ratio': 0.1, 'steps': [5, 20, 40, 70], 'step_size': 10, 'lr_T_max': 30, 'lr_eta_min': 0, 'lr_patience': 10, 'lr_threshold': 0.0001, 'max_grad_norm': 1.0, 'patience': 50, 'log_level': 'INFO', 'log_every': 1, 'load_best_epoch': True, 'hyper_tune': False, 'metrics': ['MAE', 'MAPE', 'MSE', 'RMSE', 'masked_MAE', 'masked_MAPE', 'masked_MSE', 'masked_RMSE', 'R2', 'EVAR'], 'evaluator_mode': 'single', 'save_mode': ['csv'], 'geo': {'including_types': ['Point'], 'Point': {}}, 'rel': {'including_types': ['geo'], 'geo': {'cost': 'num'}}, 'dyna': {'including_types': ['state'], 'state': {'entity_id': 'geo_id', 'traffic_speed': 'num'}}, 'data_col': ['traffic_speed'], 'weight_col': 'cost', 'data_files': ['METR_LA'], 'geo_file': 'METR_LA', 'rel_file': 'METR_LA', 'output_dim': 1, 'time_intervals': 300, 'init_weight_inf_or_zero': 'inf', 'set_weight_link_or_dist': 'dist', 'calculate_weight_adj': True, 'weight_adj_epsilon': 0.1, 'device': device(type='cuda', index=0), 'exp_id': 11902}
+2024-11-24 16:18:59,188 - INFO - Loaded file METR_LA.geo, num_nodes=207
+2024-11-24 16:18:59,193 - INFO - set_weight_link_or_dist: dist
+2024-11-24 16:18:59,193 - INFO - init_weight_inf_or_zero: inf
+2024-11-24 16:18:59,207 - INFO - Loaded file METR_LA.rel, shape=(207, 207)
+2024-11-24 16:18:59,207 - INFO - Start Calculate the weight by Gauss kernel!
+2024-11-24 16:18:59,208 - INFO - Loading ./libcity/cache/dataset_cache/point_based_METR_LA_2_1_2_1_7_12_0.6_0.2_standard_64_False_False_True.npz
+2024-11-24 16:19:06,243 - INFO - train	x: (18137, 60, 207, 1), y: (18137, 12, 207, 1)
+2024-11-24 16:19:06,243 - INFO - eval	x: (6046, 60, 207, 1), y: (6046, 12, 207, 1)
+2024-11-24 16:19:06,243 - INFO - test	x: (6046, 60, 207, 1), y: (6046, 12, 207, 1)
+2024-11-24 16:19:07,065 - INFO - StandardScaler mean: 53.98295746166843, std: 19.96874930051554
+2024-11-24 16:19:07,065 - INFO - NoneScaler
+2024-11-24 16:21:56,634 - INFO - ASTGCN(
+  (hours_ASTGCN_submodule): ASTGCNSubmodule(
+    (BlockList): ModuleList(
+      (0): ASTGCNBlock(
+        (TAt): TemporalAttentionLayer()
+        (SAt): SpatialAttentionLayer()
+        (cheb_conv_SAt): ChebConvWithSAt(
+          (Theta): ParameterList(
+              (0): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+              (1): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+              (2): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+          )
+        )
+        (time_conv): Conv2d(64, 64, kernel_size=(1, 3), stride=(1, 2), padding=(0, 1))
+        (residual_conv): Conv2d(1, 64, kernel_size=(1, 1), stride=(1, 2))
+        (ln): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      )
+      (1): ASTGCNBlock(
+        (TAt): TemporalAttentionLayer()
+        (SAt): SpatialAttentionLayer()
+        (cheb_conv_SAt): ChebConvWithSAt(
+          (Theta): ParameterList(
+              (0): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+              (1): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+              (2): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+          )
+        )
+        (time_conv): Conv2d(64, 64, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1))
+        (residual_conv): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        (ln): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      )
+    )
+    (final_conv): Conv2d(12, 12, kernel_size=(1, 64), stride=(1, 1))
+    (fusionlayer): FusionLayer()
+  )
+  (days_ASTGCN_submodule): ASTGCNSubmodule(
+    (BlockList): ModuleList(
+      (0): ASTGCNBlock(
+        (TAt): TemporalAttentionLayer()
+        (SAt): SpatialAttentionLayer()
+        (cheb_conv_SAt): ChebConvWithSAt(
+          (Theta): ParameterList(
+              (0): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+              (1): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+              (2): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+          )
+        )
+        (time_conv): Conv2d(64, 64, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1))
+        (residual_conv): Conv2d(1, 64, kernel_size=(1, 1), stride=(1, 1))
+        (ln): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      )
+      (1): ASTGCNBlock(
+        (TAt): TemporalAttentionLayer()
+        (SAt): SpatialAttentionLayer()
+        (cheb_conv_SAt): ChebConvWithSAt(
+          (Theta): ParameterList(
+              (0): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+              (1): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+              (2): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+          )
+        )
+        (time_conv): Conv2d(64, 64, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1))
+        (residual_conv): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        (ln): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      )
+    )
+    (final_conv): Conv2d(12, 12, kernel_size=(1, 64), stride=(1, 1))
+    (fusionlayer): FusionLayer()
+  )
+  (weeks_ASTGCN_submodule): ASTGCNSubmodule(
+    (BlockList): ModuleList(
+      (0): ASTGCNBlock(
+        (TAt): TemporalAttentionLayer()
+        (SAt): SpatialAttentionLayer()
+        (cheb_conv_SAt): ChebConvWithSAt(
+          (Theta): ParameterList(
+              (0): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+              (1): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+              (2): Parameter containing: [torch.cuda.FloatTensor of size 1x64 (GPU 0)]
+          )
+        )
+        (time_conv): Conv2d(64, 64, kernel_size=(1, 3), stride=(1, 2), padding=(0, 1))
+        (residual_conv): Conv2d(1, 64, kernel_size=(1, 1), stride=(1, 2))
+        (ln): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      )
+      (1): ASTGCNBlock(
+        (TAt): TemporalAttentionLayer()
+        (SAt): SpatialAttentionLayer()
+        (cheb_conv_SAt): ChebConvWithSAt(
+          (Theta): ParameterList(
+              (0): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+              (1): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+              (2): Parameter containing: [torch.cuda.FloatTensor of size 64x64 (GPU 0)]
+          )
+        )
+        (time_conv): Conv2d(64, 64, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1))
+        (residual_conv): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        (ln): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+      )
+    )
+    (final_conv): Conv2d(12, 12, kernel_size=(1, 64), stride=(1, 1))
+    (fusionlayer): FusionLayer()
+  )
+)
+2024-11-24 16:21:56,639 - INFO - hours_ASTGCN_submodule.BlockList.0.TAt.U1	torch.Size([207])	cuda:0	True
+2024-11-24 16:21:56,639 - INFO - hours_ASTGCN_submodule.BlockList.0.TAt.U2	torch.Size([1, 207])	cuda:0	True
+2024-11-24 16:21:56,639 - INFO - hours_ASTGCN_submodule.BlockList.0.TAt.U3	torch.Size([1])	cuda:0	True
+2024-11-24 16:21:56,639 - INFO - hours_ASTGCN_submodule.BlockList.0.TAt.be	torch.Size([1, 24, 24])	cuda:0	True
+2024-11-24 16:21:56,639 - INFO - hours_ASTGCN_submodule.BlockList.0.TAt.Ve	torch.Size([24, 24])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.SAt.W1	torch.Size([24])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.SAt.W2	torch.Size([1, 24])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.SAt.W3	torch.Size([1])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.SAt.bs	torch.Size([1, 207, 207])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.SAt.Vs	torch.Size([207, 207])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.0	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.1	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.2	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.time_conv.weight	torch.Size([64, 64, 1, 3])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.time_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.residual_conv.weight	torch.Size([64, 1, 1, 1])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.residual_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.ln.weight	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.0.ln.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.TAt.U1	torch.Size([207])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.TAt.U2	torch.Size([64, 207])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.TAt.U3	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.TAt.be	torch.Size([1, 12, 12])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.TAt.Ve	torch.Size([12, 12])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.SAt.W1	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.SAt.W2	torch.Size([64, 12])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.SAt.W3	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.SAt.bs	torch.Size([1, 207, 207])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.SAt.Vs	torch.Size([207, 207])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.0	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.1	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.2	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.time_conv.weight	torch.Size([64, 64, 1, 3])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.time_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.residual_conv.weight	torch.Size([64, 64, 1, 1])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.residual_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.ln.weight	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,640 - INFO - hours_ASTGCN_submodule.BlockList.1.ln.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - hours_ASTGCN_submodule.final_conv.weight	torch.Size([12, 12, 1, 64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - hours_ASTGCN_submodule.final_conv.bias	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - hours_ASTGCN_submodule.fusionlayer.weights	torch.Size([1, 12, 207, 1])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.TAt.U1	torch.Size([207])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.TAt.U2	torch.Size([1, 207])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.TAt.U3	torch.Size([1])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.TAt.be	torch.Size([1, 12, 12])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.TAt.Ve	torch.Size([12, 12])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.SAt.W1	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.SAt.W2	torch.Size([1, 12])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.SAt.W3	torch.Size([1])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.SAt.bs	torch.Size([1, 207, 207])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.SAt.Vs	torch.Size([207, 207])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.0	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.1	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.2	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.time_conv.weight	torch.Size([64, 64, 1, 3])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.time_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.residual_conv.weight	torch.Size([64, 1, 1, 1])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.residual_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.ln.weight	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.0.ln.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.1.TAt.U1	torch.Size([207])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.1.TAt.U2	torch.Size([64, 207])	cuda:0	True
+2024-11-24 16:21:56,641 - INFO - days_ASTGCN_submodule.BlockList.1.TAt.U3	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.TAt.be	torch.Size([1, 12, 12])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.TAt.Ve	torch.Size([12, 12])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.SAt.W1	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.SAt.W2	torch.Size([64, 12])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.SAt.W3	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.SAt.bs	torch.Size([1, 207, 207])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.SAt.Vs	torch.Size([207, 207])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.0	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.1	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.2	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.time_conv.weight	torch.Size([64, 64, 1, 3])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.time_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.residual_conv.weight	torch.Size([64, 64, 1, 1])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.residual_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.ln.weight	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.BlockList.1.ln.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.final_conv.weight	torch.Size([12, 12, 1, 64])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.final_conv.bias	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - days_ASTGCN_submodule.fusionlayer.weights	torch.Size([1, 12, 207, 1])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.TAt.U1	torch.Size([207])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.TAt.U2	torch.Size([1, 207])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.TAt.U3	torch.Size([1])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.TAt.be	torch.Size([1, 24, 24])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.TAt.Ve	torch.Size([24, 24])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.SAt.W1	torch.Size([24])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.SAt.W2	torch.Size([1, 24])	cuda:0	True
+2024-11-24 16:21:56,642 - INFO - weeks_ASTGCN_submodule.BlockList.0.SAt.W3	torch.Size([1])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.SAt.bs	torch.Size([1, 207, 207])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.SAt.Vs	torch.Size([207, 207])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.0	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.1	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.cheb_conv_SAt.Theta.2	torch.Size([1, 64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.time_conv.weight	torch.Size([64, 64, 1, 3])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.time_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.residual_conv.weight	torch.Size([64, 1, 1, 1])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.residual_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.ln.weight	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.0.ln.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.TAt.U1	torch.Size([207])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.TAt.U2	torch.Size([64, 207])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.TAt.U3	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.TAt.be	torch.Size([1, 12, 12])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.TAt.Ve	torch.Size([12, 12])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.SAt.W1	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.SAt.W2	torch.Size([64, 12])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.SAt.W3	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.SAt.bs	torch.Size([1, 207, 207])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.SAt.Vs	torch.Size([207, 207])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.0	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,643 - INFO - weeks_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.1	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.cheb_conv_SAt.Theta.2	torch.Size([64, 64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.time_conv.weight	torch.Size([64, 64, 1, 3])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.time_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.residual_conv.weight	torch.Size([64, 64, 1, 1])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.residual_conv.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.ln.weight	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.BlockList.1.ln.bias	torch.Size([64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.final_conv.weight	torch.Size([12, 12, 1, 64])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.final_conv.bias	torch.Size([12])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - weeks_ASTGCN_submodule.fusionlayer.weights	torch.Size([1, 12, 207, 1])	cuda:0	True
+2024-11-24 16:21:56,644 - INFO - Total parameter numbers: 722421
+2024-11-24 16:21:56,644 - INFO - You select `adam` optimizer.
+2024-11-24 16:21:56,645 - WARNING - Received none train loss func and will use the loss func defined in the model.
+2024-11-24 16:21:56,645 - INFO - Start training ...
+2024-11-24 16:21:56,645 - INFO - num_batches:284

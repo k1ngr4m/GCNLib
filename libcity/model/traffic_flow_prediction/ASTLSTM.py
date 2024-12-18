@@ -145,8 +145,8 @@ class TemporalAttentionLayer(nn.Module):
         self.num_of_timesteps = num_of_timesteps
 
         # 初始化参数
-        self.U1 = nn.Parameter(torch.FloatTensor(num_of_vertices, in_channels).to(device))  # (N, F_in)
-        self.U2 = nn.Parameter(torch.FloatTensor(in_channels, num_of_timesteps).to(device))  # (F_in, T)
+        self.U1 = nn.Parameter(torch.FloatTensor(in_channels, num_of_vertices).to(device))  # (F_in, N)
+        self.U2 = nn.Parameter(torch.FloatTensor(num_of_vertices, num_of_timesteps).to(device))  # (N, T)
         self.U3 = nn.Parameter(torch.FloatTensor(in_channels, num_of_timesteps).to(device))  # (F_in, T)
         self.be = nn.Parameter(torch.FloatTensor(1, num_of_timesteps, num_of_timesteps).to(device))  # (1, T, T)
         self.Ve = nn.Parameter(torch.FloatTensor(num_of_timesteps, num_of_timesteps).to(device))  # (T, T)
@@ -168,24 +168,25 @@ class TemporalAttentionLayer(nn.Module):
         返回:
             torch.tensor: 时间注意力分数，形状为 (B, T, T)
         """
-        # 计算左侧特征，x的维度从(B, N, F_in, T)变为(B, T, N, F_in)，再通过U1变为(B, T, N, T)
-        lhs = torch.einsum('bntf, nf->btnf', x.permute(0, 3, 1, 2),
-                           self.U1)  # (B, T, N, F_in) * (N, F_in) -> (B, T, N, F_in)
-        lhs = torch.einsum('btnf, ft->btnf', lhs, self.U2)  # (B, T, N, F_in) * (F_in, T) -> (B, T, N, T)
+        # 计算左侧特征，x的维度从(B, N, F_in, T)变为(B, T, N, F_in)，再通过U1变为(B, T, N, 1)
+        lhs = torch.matmul(x.permute(0, 3, 1, 2),
+                           self.U1.unsqueeze(0).unsqueeze(0))  # (B, T, N, F_in) * (1, 1, F_in, N) -> (B, T, N, N)
+        lhs = torch.matmul(lhs, self.U2.unsqueeze(0).unsqueeze(0))  # (B, T, N, N) * (1, 1, N, T) -> (B, T, N, T)
 
-        # 计算右侧特征，x的维度从(B, N, F_in, T)变为(B, N, T, F_in)，再通过U3变为(B, N, T, T)
-        rhs = torch.einsum('bnft, ft->bntf', x, self.U3)  # (B, N, F_in, T) * (F_in, T) -> (B, N, T, T)
+        # 计算右侧特征，x的维度从(B, N, F_in, T)变为(B, N, T, F_in)，再通过U3变为(B, N, T, 1)
+        rhs = torch.matmul(x, self.U3.unsqueeze(0).unsqueeze(0).transpose(-1,
+                                                                          -2))  # (B, N, F_in, T) * (1, 1, T, F_in) -> (B, N, T, T)
 
         # 计算特征乘积，得到时间注意力分数的原始值
-        product = torch.einsum('btnf, bntf->btt', lhs, rhs)  # (B, T, N, T) * (B, N, T, T) -> (B, T, T)
+        product = torch.matmul(lhs, rhs)  # (B, T, N, T) * (B, N, T, T) -> (B, T, T, T)
 
         # 应用sigmoid激活函数并计算最终的时间注意力分数
-        e = torch.matmul(self.Ve, torch.sigmoid(product + self.be.squeeze(0)))  # (T, T) * (B, T, T) -> (B, T, T)
+        e = torch.matmul(self.Ve, torch.sigmoid(product + self.be.squeeze(0)))  # (T, T) * (B, T, T, T) -> (B, T, T, T)
 
         # 对时间注意力分数进行归一化
-        e_normalized = F.softmax(e, dim=2)  # (B, T, T)
+        e_normalized = F.softmax(e, dim=2)  # (B, T, T, T)
 
-        return e_normalized
+        return e_normalized.sum(dim=2)  # (B, T, T)
 
 
 class ASTGCNBlock(nn.Module):

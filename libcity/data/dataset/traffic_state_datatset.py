@@ -312,6 +312,8 @@ class TrafficStateDataset(AbstractDataset):
         else:  # 不指定则加载所有列
             gridfile = gridfile[gridfile.columns[2:]]  # 从time列开始所有列
         # 求时间序列
+        temp = gridfile.shape[0] / len(self.geo_ids)
+        print(temp)
         self.timesolts = list(gridfile['time'][:int(gridfile.shape[0] / len(self.geo_ids))])
         self.idx_of_timesolts = dict()
         if not gridfile['time'].isna().any():  # 时间没有空值
@@ -324,6 +326,7 @@ class TrafficStateDataset(AbstractDataset):
         df = gridfile[gridfile.columns[-feature_dim:]]
         len_time = len(self.timesolts)
         data = []
+        print(len_time)
         for i in range(0, df.shape[0], len_time):
             data.append(df[i:i + len_time].values)
         data = np.array(data, dtype=np.float)  # (len(self.geo_ids), len_time, feature_dim)

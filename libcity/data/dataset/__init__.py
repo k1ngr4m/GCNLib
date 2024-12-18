@@ -7,6 +7,6 @@ from libcity.data.dataset.traffic_state_grid_dataset import TrafficStateGridData
 __all__ = [
     "AbstractDataset",
     "TrafficStateDataset",
-    "TrafficStatePointDataset",
-    "TrafficStateGridDataset"
+    "TrafficStateGridDataset",
+    "TrafficStatePointDataset"
 ]

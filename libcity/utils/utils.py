@@ -140,13 +140,14 @@ def get_logger(config, name=None):
         level = logging.INFO
 
     logger.setLevel(level)
+    # formatter = UTC8Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
 
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     file_handler = logging.FileHandler(logfilepath)
     file_handler.setFormatter(formatter)
 
     console_formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s')
+        "%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(console_formatter)
 

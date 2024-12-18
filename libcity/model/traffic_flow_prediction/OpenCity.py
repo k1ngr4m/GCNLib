@@ -278,25 +278,104 @@ class STEncoderBlock(nn.Module):
 
 
 class OpenCity(AbstractTrafficStateModel):
-    def __init__(self, config, data_feature):
-        super().__init__(config, data_feature)
-        # section 1: data_feature
-        self._scaler = self.data_feature.get('scaler')
-        self.num_nodes = self.data_feature.get('num_nodes', 1)
+    def __init__(self, args, dataset_use, device, dim_in, config, data_feature):
+        super(OpenCity, self).__init__(config, data_feature)
+
         self.feature_dim = self.data_feature.get('feature_dim', 1)
-        self.output_dim = self.data_feature.get('output_dim', 1)
-        self._logger = getLogger()
-        # section 2: model config
-        self.input_window = config.get('input_window', 1)
-        self.output_window = config.get('output_window', 1)
-        self.device = config.get('device', torch.device('cpu'))
-        self.hidden_size = config.get('hidden_size', 64)
-        self.num_layers = config.get('num_layers', 1)
-        self.dropout = config.get('dropout', 0)
-        # section 3: model structure
-        self.rnn = nn.LSTM(input_size=self.num_nodes * self.feature_dim, hidden_size=self.hidden_size,
-                           num_layers=self.num_layers, dropout=self.dropout)
-        self.fc = nn.Linear(self.hidden_size, self.num_nodes * self.output_dim)
+        self.adj_mx_dict = self.data_feature.get('adj_mx_dict', 1)
+        self.sh_mx_dict = self.data_feature.get('sh_mx_dict', 1)
+        self.lap_mx_dict = self.data_feature.get('lap_mx_dict', 1)
+
+        self.embed_dim = args.embed_dim
+        self.skip_dim = args.skip_dim
+        self.lape_dim = args.lape_dim
+        self.geo_num_heads = args.geo_num_heads
+        self.sem_num_heads = args.sem_num_heads
+        self.tc_num_heads = args.tc_num_heads
+        self.t_num_heads = args.t_num_heads
+        self.mlp_ratio = args.mlp_ratio
+        self.qkv_bias = args.qkv_bias
+        self.drop = args.drop
+        self.attn_drop = args.attn_drop
+        self.drop_path = args.drop_path
+        self.s_attn_size = args.s_attn_size
+        self.t_attn_size = args.t_attn_size
+        self.enc_depth = args.enc_depth
+        self.type_ln = args.type_ln
+
+        self.output_dim = dim_in
+        self.input_window = args.input_window
+        self.output_window = args.output_window
+        self.device = device
+        self.far_mask_delta = args.far_mask_delta
+
+        self.geo_mask_dict = {}
+        for i, data_graph in enumerate(dataset_use):
+            sh_mx = self.sh_mx_dict[data_graph].T
+            self.geo_mask_dict[data_graph] = torch.zeros_like(sh_mx)
+            self.geo_mask_dict[data_graph][sh_mx >= self.far_mask_delta] = 1
+            self.geo_mask_dict[data_graph] = self.geo_mask_dict[data_graph].bool()
+        self.sem_mask = None
+
+        self.patch_embedding_flow = PatchEmbedding_flow(
+            self.embed_dim, patch_len=12, stride=12, padding=0, his=args.input_window)
+        self.patch_embedding_time = PatchEmbedding_time(
+            self.embed_dim, patch_len=12, stride=12, padding=0, his=args.input_window)
+        self.spatial_embedding = LaplacianPE(self.lape_dim, self.embed_dim)
+
+        enc_dpr = [x.item() for x in torch.linspace(0, self.drop_path, self.enc_depth)]
+        self.encoder_blocks = nn.ModuleList([
+            STEncoderBlock(
+                dim=self.embed_dim, s_attn_size=self.s_attn_size, t_attn_size=self.t_attn_size,
+                geo_num_heads=self.geo_num_heads, sem_num_heads=self.sem_num_heads, tc_num_heads=self.tc_num_heads, t_num_heads=self.t_num_heads,
+                mlp_ratio=self.mlp_ratio, qkv_bias=self.qkv_bias, drop=self.drop, attn_drop=self.attn_drop, drop_path=enc_dpr[i], act_layer=nn.GELU,
+                device=self.device, type_ln=self.type_ln, output_dim=self.output_dim,
+            ) for i in range(self.enc_depth)
+        ])
+
+        self.flatten = nn.Flatten(start_dim=-2)
+        self.linear = nn.Linear(24*self.skip_dim, self.output_window)
+
+    def forward(self, input, lbls, select_dataset):
+
+        bs, time_steps, num_nodes, num_feas = input.size()
+        x = input
+        # Spatio-Temporal Context Encoding
+        TCH = input[..., self.output_dim:].long()
+        TCP = lbls[..., self.output_dim:].long()
+        feas_all_his, feas_all_pre = self.patch_embedding_time(torch.cat([TCH, TCP], dim=-1))
+        spa_feas = self.spatial_embedding(self.lap_mx_dict[select_dataset].to(self.device)).repeat(bs, feas_all_his.shape[1], 1, 1)
+        feas_all_his = feas_all_his + spa_feas
+        feas_all_pre = feas_all_pre +spa_feas
+
+        # IN
+        x_in = x[..., :self.output_dim]
+        means = x_in.mean(1, keepdim=True).detach()
+        x_in = x_in - means
+        stdev = torch.sqrt(torch.var(x_in, dim=1, keepdim=True, unbiased=False)+ 1e-5).detach()
+        x_in /= stdev
+
+        # Patch Embedding
+        enc = self.patch_embedding_flow(x_in)
+
+        # adj
+        adj = self.adj_mx_dict[select_dataset].to(self.device)
+
+        # Spatio-Temporal Dependencies Modeling
+        for i, encoder_block in enumerate(self.encoder_blocks):
+            enc = encoder_block(enc, enc, enc, feas_all_his, feas_all_pre, adj, self.geo_mask_dict[select_dataset].to(self.device), self.sem_mask)
+
+        # Prediction head
+        skip = enc.permute(0, 2, 3, 1).contiguous()
+        skip = self.flatten(skip)
+        skip = self.linear(skip).transpose(1, 2).unsqueeze(-1)
+        skip = skip[:, :time_steps, :, :]
+
+        # DeIN
+        skip = skip * stdev
+        skip = skip + means
+
+        return skip
 
     def predict(self, batch):
         pass
